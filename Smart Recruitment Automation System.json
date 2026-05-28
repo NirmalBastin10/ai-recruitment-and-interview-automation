@@ -1,0 +1,1721 @@
+{
+  "name": "Smart Recruitment Automation System",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -560,
+        -16
+      ],
+      "id": "f9426199-2dd5-4cf6-aaab-9d0a5ebcd753",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "attachment_0",
+        "name": "={{ $json.from.value[0].name }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1B_2hpNXBTUWVKw1ipPucgAVOUoRDQOFI",
+          "mode": "list",
+          "cachedResultName": "Resume",
+          "cachedResultUrl": "xyz"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -112,
+        -112
+      ],
+      "id": "0919255a-4d49-4330-9990-23861a87925f",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "7ab84eb7-2dc2-40d6-97b1-8347efe76415"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a6f032de-27e7-47a6-8f18-2bf8ffb510dc",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "docx"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "8c3970b5-8796-4b23-97da-1a6c97dc1b30",
+                    "leftValue": "={{ $json.mimeType }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        112,
+        -128
+      ],
+      "id": "e6bc7487-fd6e-4919-8cef-6fed6bfb61af",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v2/files/{{ $json.id }}/copy?convert=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        336,
+        -112
+      ],
+      "id": "182fa9ad-f94b-4eba-8e4e-c9029c0e9874",
+      "name": "HTTP Request",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        -112
+      ],
+      "id": "2c0078fd-8bc9-45e6-a76c-6925adbfb7ef",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        -112
+      ],
+      "id": "c387f4af-e5b2-4062-9fdf-7c78b9a30a14",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        80
+      ],
+      "id": "e185d214-624c-4a0d-a67d-69787fb0e496",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        -304
+      ],
+      "id": "4ca4fad8-4984-4087-8ef7-bb5a92801e3e",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1c8sfhIAAf8Ub9T2Sar9YY0BNHQWsXPKs",
+          "mode": "list",
+          "cachedResultName": "sample_job_description.docx.pdf",
+          "cachedResultUrl": "xyz"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1456,
+        -208
+      ],
+      "id": "231d766b-9fef-441b-87f6-208d6bf576e7",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=cadidate resume: {{ $('resume of candidate').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Overview\n\nYou are an expert technical recruiter specializing in AI, automation, software, and technical roles. You have been provided with a job description and a candidate resume. Your task is to evaluate how well the candidate matches the role by analyzing technical skills, experience, projects, and overall job fit. Generate a structured screening report using only the information available in the resume and job description, avoiding assumptions or unsupported conclusions. ## Output dont take locations into consideration while taking decisions\n\nCandidate Strengths:\nList the top strengths or relevant qualifications the candidate brings.\nBe specific.\n\nCandidate Weaknesses:\nList areas where the candidate is lacking or mismatched based on the job description.\n\nRisk Factor:\n- Assign a risk score (Low / Medium / High)\n- Explain the worst-case scenario if this candidate is hired.\n\nReward Factor:\n- Assign a reward score (Low / Medium / High)\n- Describe the best-case scenario and value this candidate could unlock.\n- Determine if the candidate appears to be a short-term or long-term fit.\n\nOverall Fit Rating (0–10):\nAssign a number between 0 (terrible match) and 10 (perfect match).\nDo not use decimals. you can give 0 also if there is nothing matching this wont be send to the candidate \n\nJustification for Rating:\nExplain clearly why this candidate received that score.\nReference resume content and job description alignment.\n\nSkill Gap Analysis (Only if Overall Fit Rating < 5) wirte this in short to be sent to the candidate along with the mail:\n- List missing skills\n- Mention important technologies/tools absent\n- Suggest areas for improvement\n\nInterview Questions:\nGenerate 5 questions based on the candidate’s resume to validate:\n1. Projects\n2. Technical skills\n3. Experience\n4. Tools used\n5. Problem-solving ability\n\n## Job Description {{ $json.text }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1008,
+        336
+      ],
+      "id": "2f56645f-951e-485c-8999-1d077c6449be",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"candidate_strengths\": {\n      \"type\": \"array\",\n      \"description\": \"Top strengths or relevant qualifications of the candidate.\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n\n    \"candidate_weaknesses\": {\n      \"type\": \"array\",\n      \"description\": \"Areas where candidate is lacking or mismatched.\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n\n    \"risk_factor\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"score\": {\n          \"type\": \"string\",\n          \"enum\": [\"Low\", \"Medium\", \"High\"]\n        },\n        \"worst_case\": {\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"score\",\n        \"worst_case\"\n      ]\n    },\n\n    \"reward_factor\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"score\": {\n          \"type\": \"string\",\n          \"enum\": [\"Low\", \"Medium\", \"High\"]\n        },\n\n        \"best_case\": {\n          \"type\": \"string\"\n        },\n\n        \"fit_type\": {\n          \"type\": \"string\",\n          \"enum\": [\n            \"Short-term\",\n            \"Long-term\"\n          ]\n        }\n      },\n\n      \"required\": [\n        \"score\",\n        \"best_case\",\n        \"fit_type\"\n      ]\n    },\n\n    \"overall_fit_rating\": {\n      \"type\": \"integer\",\n      \"minimum\": 0,\n      \"maximum\": 10,\n      \"description\": \"Overall fit score from 0 to 10 without decimals.\"\n    },\n\n    \"justification_for_rating\": {\n      \"type\": \"string\"\n    },\n\n    \"skill_gap_analysis\": {\n      \"type\": \"object\",\n      \"description\": \"Generate ONLY when overall_fit_rating is LESS than 5\",\n\n      \"properties\": {\n\n        \"missing_skills\": {\n          \"type\": \"array\",\n          \"description\": \"List important required skills the candidate does not have.\",\n          \"items\": {\n            \"type\": \"string\"\n          }\n        },\n\n        \"missing_tools\": {\n          \"type\": \"array\",\n          \"description\": \"List missing tools, platforms, IDEs, or technologies.\",\n          \"items\": {\n            \"type\": \"string\"\n          }\n        },\n\n        \"improvement_areas\": {\n          \"type\": \"array\",\n\n          \"description\": \"Generate actionable learning suggestions in sentence format like 'Learn embedded C/C++ programming', 'Acquire microcontroller and firmware development skills', 'Understand PCB design basics'\",\n\n          \"items\": {\n            \"type\": \"string\"\n          }\n        }\n\n      },\n\n      \"required\": [\n        \"missing_skills\",\n        \"missing_tools\",\n        \"improvement_areas\"\n      ]\n    },\n\n    \"interview_questions\": {\n      \"type\": \"array\",\n\n      \"description\": \"Generate EXACTLY 5 questions ONLY when overall_fit_rating is GREATER than or EQUAL to 5\",\n\n      \"minItems\": 5,\n      \"maxItems\": 5,\n\n      \"items\": {\n\n        \"type\": \"object\",\n\n        \"properties\": {\n\n          \"category\": {\n            \"type\": \"string\",\n\n            \"enum\": [\n              \"Projects\",\n              \"Technical Skills\",\n              \"Experience\",\n              \"Tools\",\n              \"Problem Solving\"\n            ]\n          },\n\n          \"question\": {\n            \"type\": \"string\"\n          }\n\n        },\n\n        \"required\": [\n          \"category\",\n          \"question\"\n        ]\n      }\n    }\n\n  },\n\n  \"required\": [\n    \"candidate_strengths\",\n    \"candidate_weaknesses\",\n    \"risk_factor\",\n    \"reward_factor\",\n    \"overall_fit_rating\",\n    \"justification_for_rating\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1152,
+        560
+      ],
+      "id": "c5f6993e-3fb5-424f-be83-3ed6ca0de855",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('resume of candidate').item.json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "first name",
+              "description": "the first name of the candidtate",
+              "required": true
+            },
+            {
+              "name": "last name ",
+              "description": "the last name of the cadidate ",
+              "required": true
+            },
+            {
+              "name": "email",
+              "description": "the email address of the cadidate",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        336
+      ],
+      "id": "19188790-069e-4646-96dd-6208e4db74ee",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0595349-7423-4ea1-9f55-77929e1ba647",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        -208
+      ],
+      "id": "68a2118f-76c2-4d6b-927d-8cc4cc6800c9",
+      "name": "resume of candidate"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        -208
+      ],
+      "id": "b8cb5f48-779a-413f-92e3-09d4a021e693",
+      "name": "jd"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1u6EYojYfIni_HoQm2n4D6lueIzux-zMtff_e201z_BY",
+          "mode": "list",
+          "cachedResultName": "candidate_report",
+          "cachedResultUrl": "xyz"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "xyz"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first name ": "={{ $json.output['first name'] }}",
+            "last name ": "={{ $json.output['last name '] }}",
+            "email": "={{ $json.output.email }}",
+            "candidate strenght": "={{ $('AI Agent').item.json.output.candidate_strengths.join(\"\\n\\n\") }}",
+            "candidate weaknesses": "={{ $('AI Agent').item.json.output.candidate_weaknesses.join(\"\\n\\n\") }}",
+            "risk factor": "={{ $('AI Agent').item.json.output.risk_factor.score + '\\n' + $('AI Agent').item.json.output.risk_factor.worst_case }}\n",
+            "reward factor ": "={{ $('AI Agent').item.json.output.reward_factor.score + '\\n' + $('AI Agent').item.json.output.reward_factor.best_case }}",
+            "overall fit rating": "={{ $('AI Agent').item.json.output.overall_fit_rating }}",
+            "justification for the rating": "={{ $('AI Agent').item.json.output.justification_for_rating }}",
+            "skill gap analysis": "={{\n$('AI Agent').item.json.output.overall_fit_rating < 5\n? `Missing Skills:\n${$('AI Agent').item.json.output.skill_gap_analysis.missing_skills.join('\\n')}\n\nMissing Tools:\n${$('AI Agent').item.json.output.skill_gap_analysis.missing_tools.join('\\n')}\n\nImprovement Areas:\n${$('AI Agent').item.json.output.skill_gap_analysis.improvement_areas.join('\\n')}`\n: 'N/A'\n}}",
+            "interview questions": "={{ \n$('AI Agent').item.json.output.overall_fit_rating > 5\n?$('AI Agent').item.json.output.interview_questions\n.map(q => `${q.category}: ${q.question}`)\n.join('\\n\\n'): 'N/A' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "first name ",
+              "displayName": "first name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last name ",
+              "displayName": "last name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "candidate strenght",
+              "displayName": "candidate strenght",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "candidate weaknesses",
+              "displayName": "candidate weaknesses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk factor",
+              "displayName": "risk factor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reward factor ",
+              "displayName": "reward factor ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "overall fit rating",
+              "displayName": "overall fit rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "justification for the rating",
+              "displayName": "justification for the rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "skill gap analysis",
+              "displayName": "skill gap analysis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interview questions",
+              "displayName": "interview questions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1552,
+        336
+      ],
+      "id": "1ae60cc6-9ffe-45b1-8339-a57985385953",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json['overall fit rating'] }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gt"
+                    },
+                    "id": "36323f85-dbbf-4123-9959-ea273ad99219"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "shortlist"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c248f88c-af8d-40f2-ad87-758232edb6e6",
+                    "leftValue": "={{ $json['overall fit rating'] }}",
+                    "rightValue": 5,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "not shortlisted"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1712,
+        336
+      ],
+      "id": "7b63ae13-83a5-4d14-974f-ca9e5666e575",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "Application Update",
+        "emailType": "text",
+        "message": "=Dear ,{{ $('Information Extractor').item.json.output['first name'] }} {{ $('Information Extractor').item.json.output['last name '] }}\n\nThank you for your interest in the dash position at xyz.\n\nAfter carefully reviewing your profile, we regret to inform you that you have not been selected for the next stage of the recruitment process at this time.\n\nWe encourage you to continue improving the following areas to strengthen your profile for future opportunities:\n\nSkill Gap / Areas for Improvement:\n{{ $('Append row in sheet').item.json['skill gap analysis'] }}\n\n\nWe appreciate the time and effort you invested in the application process and wish you success in your future career endeavors.\n\nBest regards,\nabc\nHR Team\nxyz",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1888,
+        768
+      ],
+      "id": "ad6f158d-4b13-40f8-9474-7f6e428d6dc8",
+      "name": "Send a message1",
+      "webhookId": "4298274a-de3c-481b-8ed7-4a5824327f0a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1008,
+        -224
+      ],
+      "id": "4cf46e2a-a5fd-4964-ab99-6351cb3472fd",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1da94db0-eab0-4183-8466-99b2d2095af6",
+              "leftValue": "={{ !! $binary.attachment_0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -336,
+        -16
+      ],
+      "id": "eda9b4b1-4b88-48be-9688-bc5288aa11f9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "Resume Attachment Required",
+        "emailType": "text",
+        "message": "=Dear Candidate,\n\nThank you for your application.\n\nWe could not detect a resume attachment in your email.\nPlease resend your application with your resume attached in one of the following formats:\n\nPDF (.pdf)\nWord Document (.docx)\nText File (.txt)\n\nOnce submitted, your application will be processed automatically.\n\nBest regards,\nAI Recruitment System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        80
+      ],
+      "id": "5171e564-cc22-46b8-9ee6-ef270d900027",
+      "name": "Send a message2",
+      "webhookId": "2c23474c-c66d-4914-92ab-bc776628a55e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Append row in sheet').item.json['candidate strenght'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI interview scheduler.\nIMPORTANT RULES:\ninverviewer avilabiliy sheet ( check in this sheet)\n\nOnly select interviewers that exist in the attached Google Sheet\nNever generate random interviewer names\nif non of the iterviewer or matching interview are not aviable retunr all the filed as emptly string \nNever invent interview slots\nUse ONLY the exact interviewer names from the provided sheet\nIf no suitable interviewer is available, return:\nChoose the best available interviewer based on the candidate's skills, strengths, and interviewer role.\n\nOnly choose interviewers whose availability is marked as YES.\n\nReturn the output ONLY in the provided structured JSON format.\n\nRules:\n\n* Select only one interviewer\n* Prefer the best technical match\n* Prefer earlier available interview slots\n* Status must always be \"Booked\"\n* Use future interview dates only\n* Return time in 24-hour format\ncandidate name:{{ $json['first name '] }} {{ $json['last name '] }}\nExample Output:\n\n{\n\"Interviewer Name\": \"Rahul Verma\",\n\"Interviewer email\": \"xyz@gmail.com\",\n\n\"Role\": \"IoT Engineer\",\n\"Interview Date\": \"2026-06-02\",\n\"Start Time\": \"15:00:00\",\n\"End Time\": \"16:00:00\",\n\"Status\": \"Booked\",\n\"Candidate\": \"John Doe\"\n}\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2000,
+        224
+      ],
+      "id": "02a2b04c-6dd8-44a0-b678-17d0f468b45d",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-32b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        560
+      ],
+      "id": "af9cc0c5-8a53-4aa3-995f-76cf22288bc3",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "xyz",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        224
+      ],
+      "id": "732d0dd8-d6c8-4f62-b8d7-9285121bdfc0",
+      "name": "Wait",
+      "webhookId": "cfd44130-eefd-49d8-9431-c2933752f334"
+    },
+    {
+      "parameters": {
+        "content": "## The workflow checks for a resume attachment in the email and uploads it to Google Drive for further processing.\n\n",
+        "height": 720,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "441ebad1-65b9-4442-b859-ca9807130521",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## routes the file through different paths based on the resume format to extract and convert the content into text for further processing.",
+        "height": 720,
+        "width": 1296,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "a0109847-b417-4647-84af-65bfb0b2b916",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"Interviewer Name\": {\n      \"type\": \"string\"\n    },\n     \"Interviewer email\": {\n      \"type\": \"string\"\n    },\n    \"Role\": {\n      \"type\": \"string\"\n    },\n    \"Interview Date\": {\n      \"type\": \"string\"\n    },\n    \"Start Time\": {\n      \"type\": \"string\"\n    },\n    \"End Time\": {\n      \"type\": \"string\"\n    },\n    \"Status\": {\n      \"type\": \"string\"\n    },\n    \"Candidate\": {\n      \"type\": \"string\"\n    }\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2256,
+        416
+      ],
+      "id": "1fd07b10-7e1d-4e15-b85e-588e7e3e6e01",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "22aa1b779af4288d5190c35ff745c37e448896eadb5e3c70bdd58999d2170885@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Interviews"
+        },
+        "start": "={{ $json.output[\"Interview Date\"] + \"T\" + $json.output[\"Start Time\"] + \"+05:30\" }}",
+        "end": "={{ $json.output[\"Interview Date\"] + \"T\" + $json.output[\"End Time\"] + \"+05:30\" }}",
+        "additionalFields": {
+          "attendees": [],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "location": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2432,
+        80
+      ],
+      "id": "d7ffd4b0-f402-468a-8165-bbec95313ef0",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZmV2BIbtAkYI9-DO7IIrPzp-54rrdbNgeKNQiS48cE8",
+          "mode": "list",
+          "cachedResultName": "interviewers",
+          "cachedResultUrl": "xyz"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "xyz"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Availability": "NO",
+            "Interviewer Name": "={{ $('AI Agent1').item.json.output['Interviewer Name'] }}",
+            "Google Meet Link": "={{ $json.conferenceData.entryPoints[0].uri }}",
+            "Candidate Assigned": "={{ $('AI Agent1').item.json.output.Candidate }}"
+          },
+          "matchingColumns": [
+            "Interviewer Name"
+          ],
+          "schema": [
+            {
+              "id": "Interviewer Name",
+              "displayName": "Interviewer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Department",
+              "displayName": "Department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Role",
+              "displayName": "Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interview Date",
+              "displayName": "Interview Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Start Time",
+              "displayName": "Start Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "End Time",
+              "displayName": "End Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Availability",
+              "displayName": "Availability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Google Meet Link",
+              "displayName": "Google Meet Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Candidate Assigned",
+              "displayName": "Candidate Assigned",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2576,
+        80
+      ],
+      "id": "0b169d06-590e-407e-bce4-ae5f9aed2e10",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "Interview Invitation ",
+        "emailType": "text",
+        "message": "=Congratulations! We are pleased to inform you that you have been shortlisted for the next stage of the recruitment process for the position of {{ $('AI Agent1').item.json.output.Role }} .\n\nYour interview has been scheduled with the following details:\n\nInterview Details:\n\nInterviewer: {{ $('AI Agent1').item.json.output['Interviewer Name'] }}\nPosition: {{ $('AI Agent1').item.json.output.Role }}\nDate: {{ $('AI Agent1').item.json.output['Interview Date'] }}\nTime: {{ $('AI Agent1').item.json.output['Start Time'] }} - {{ $('AI Agent1').item.json.output['End Time'] }}\nMode: Google Meet\n\nGoogle Meet Link: {{ $json['Google Meet Link'] }}\n\n\nPlease join the meeting a few minutes before the scheduled time. Ensure that you have a stable internet connection and a working microphone/camera.\n\nIf you are unavailable at the scheduled time or have any questions, please reply to this email.\n\nWe look forward to speaking with you.\n\nBest regards,\nxyz\nabc\nxyz@gmail.com",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2720,
+        80
+      ],
+      "id": "2ab952c0-7e1c-49f3-8053-1a0828d3ae9f",
+      "name": "Send a message",
+      "webhookId": "0e4fc573-0415-416a-a280-4914d2dbafc7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ZmV2BIbtAkYI9-DO7IIrPzp-54rrdbNgeKNQiS48cE8",
+          "mode": "list",
+          "cachedResultName": "interviewers",
+          "cachedResultUrl": "xyz"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "xyz"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        2096,
+        416
+      ],
+      "id": "7b88b81f-5983-4e85-8068-5035e0395626",
+      "name": "inverviewer avilabiliy sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c023fddd-8e7a-4cc0-9cdb-470d39b2a626",
+              "leftValue": "={{ $json.output['Interviewer Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2272,
+        224
+      ],
+      "id": "a29b214d-41bc-43bb-8a83-ec54117da1ca",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1lEm7Wq5pHYUbEkwUPoFwfxBBBka4GINFaPwGNgpknlI",
+          "mode": "list",
+          "cachedResultName": "waitlisted",
+          "cachedResultUrl": "xyz"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "xyz"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Wait').item.json['first name '] }} {{ $('Wait').item.json['last name '] }}",
+            "Email": "={{ $('Wait').item.json.email }}",
+            "Candidate Skills": "={{ $('Wait').item.json['candidate strenght'] }}",
+            "Resume Link": "={{ $('Upload file').item.json.webViewLink }}",
+            "Status": "waiting ",
+            "Waitlisted Time": "={{ $now.toFormat('yyyy-MM-dd') }}",
+            "Scheduled Date": "="
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applied Role",
+              "displayName": "Applied Role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Candidate Skills",
+              "displayName": "Candidate Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Preferred Domain",
+              "displayName": "Preferred Domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Resume Link",
+              "displayName": "Resume Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Waitlisted Time",
+              "displayName": "Waitlisted Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Assigned Interviewer",
+              "displayName": "Assigned Interviewer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Scheduled Time",
+              "displayName": "Scheduled Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2496,
+        336
+      ],
+      "id": "10775cf2-b972-4fad-b538-4ba5f29c7b41",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xyz",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.from.value[0].address }}",
+        "subject": "Application Update",
+        "emailType": "text",
+        "message": "=Dear ,{{ $('Information Extractor').item.json.output['first name'] }} {{ $('Information Extractor').item.json.output['last name '] }} Thank you for your interest in the position.  Your profile has been shortlisted based on your qualifications and skills. Currently, all interview slots are occupied, so your application has been placed on our waitlist.  We will contact you as soon as an interview slot becomes available.  Best regards, Recruitment Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2656,
+        336
+      ],
+      "id": "8b8070c2-95c3-46c4-91fe-3136956b3fd3",
+      "name": "Send a message3",
+      "webhookId": "cce014a3-348b-4a2b-a5ad-1742b71bfddc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Download JD",
+        "height": 720,
+        "width": 432,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        -480
+      ],
+      "typeVersion": 1,
+      "id": "543991d0-c70e-4dbb-8a18-e82db96d7a60",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## AI Analysis",
+        "height": 416,
+        "width": 864,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        320
+      ],
+      "typeVersion": 1,
+      "id": "40dd642a-c799-45e5-8887-0608c7e2c15c",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## shortlisted",
+        "height": 496,
+        "width": 1344,
+        "color": "#000000"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "6aea31f9-188b-4831-8ecd-5a33d94d9c09",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Not Shortlisted",
+        "height": 240,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        720
+      ],
+      "typeVersion": 1,
+      "id": "1d4115d2-5c90-460d-8f96-b7226546b085",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## waitlisted",
+        "height": 272,
+        "width": 528,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "4bd520f9-e64b-4403-9ff5-9525b9c7abce",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('AI Agent1').item.json.output['Interviewer email'] }}",
+        "subject": "Interview Scheduled – Candidate Assignment",
+        "emailType": "text",
+        "message": "=Dear ,{{ $('AI Agent1').item.json.output['Interviewer Name'] }}\n\nYou have been assigned to conduct an interview for the following candidate:\n\nCandidate Name: {{ $('AI Agent1').item.json.output.Candidate }}\n\nInterview Details:\nDate: {{ $('AI Agent1').item.json.output['Interview Date'] }}\nStart Time: {{ $('AI Agent1').item.json.output['Start Time'] }}\nEnd Time: {{ $('AI Agent1').item.json.output['End Time'] }}\n\nGoogle Meet Link:\n{{ $('Create an event').item.json.conferenceData.entryPoints[0].uri }}\n\nPlease be available at the scheduled time.\n\nBest regards,\nAI Interview Scheduling System",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        80
+      ],
+      "id": "5f3a38fa-1813-4ca1-a8e8-17658898b101",
+      "name": "Send a message4",
+      "webhookId": "5cba7189-ad75-4ad3-85bb-700a1f0d76e7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xyz",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "jd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "resume of candidate": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "jd": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "resume of candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "inverviewer avilabiliy sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1c2a5480-5d4e-4189-9b6d-c9912e1b10f2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "fc3YtEbq7HS9guSY",
+  "tags": []
+}
