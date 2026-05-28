@@ -52,10 +52,9 @@ The system also uses structured AI output parsing to ensure reliable automation 
 
 ## Candidate Email
 
-<img width="1372" height="636" alt="Screenshot 2026-05-28 at 4 51 23 PM" src="https://github.com/user-attachments/assets/07f8c1c3-4939-4956-bd75-c74a45978dbe" />
 
 ---
 
 ## Interviewer Email
 
-<img width="1373" height="461" alt="Screenshot 2026-05-28 at 4 52 10 PM" src="https://github.com/user-attachments/assets/c1ce4b11-15ca-43aa-a895-4368dd75e8b0" />
+
