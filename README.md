@@ -44,9 +44,7 @@ The system also uses structured AI output parsing to ensure reliable automation 
 
 <img width="1581" height="941" alt="Screenshot 2026-05-28 at 4 22 30 PM" src="https://github.com/user-attachments/assets/9b7e4c76-760e-4f72-840c-35d6023c9414" />
 
-<img width="1471" height="331" alt="Screenshot 2026-05-28 at 4 24 14 PM" src="https://github.com/user-attachments/assets/2b342e67-6495-4d41-bdb6-66d7d3225e5b" />
-
-<img width="1112" height="236" alt="Screenshot 2026-05-28 at 4 23 21 PM" src="https://github.com/user-attachments/assets/867a1d68-d32f-4d52-96ca-39aae745bc7f" />
+<img width="1111" height="237" alt="Screenshot 2026-05-28 at 5 02 01 PM" src="https://github.com/user-attachments/assets/f82287af-3a64-465a-a75c-7c6358d6225f" />
 
 <img width="1467" height="218" alt="Screenshot 2026-05-28 at 4 45 51 PM" src="https://github.com/user-attachments/assets/e98bc3db-ae7d-4f64-b8a4-9794ccdf0ae1" />
 
